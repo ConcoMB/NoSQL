@@ -48,7 +48,7 @@ public class Neo4jAdapter {
 
 	public void doQuery1() {
 		ExecutionResult result = engine
-				.execute("START li=node(*) "
+				.execute("MATCH (li:Lineitem) "
 						+ "WHERE li.L_ShipDate <= "
 						+ lineItemShipDate1
 						+ " "
@@ -62,9 +62,10 @@ public class Neo4jAdapter {
 	public void doQuery2() {
 		long time = System.currentTimeMillis();
 		ExecutionResult subResult = engine
-				.execute("START r=node(*) "
-						+ "MATCH (ps)-[:FROM_SUPPLIER]->(s)-[:FROM_NATION]->(n)-[:MEMBER_OF_REGION]->(r) "
-						+ "WHERE r.R_Name = '" + regionName1 + "' "
+				.execute("MATCH (ps)-[:FROM_SUPPLIER]->(s)-[:FROM_NATION]->(n)-[:MEMBER_OF_REGION]->(r:Region) "
+						+ "WHERE r.R_Name = '"
+						+ regionName1
+						+ "' "
 						+ "RETURN MIN(ps.PS_SupplyCost) AS Min_Cost");
 		System.out.println(System.currentTimeMillis() - time);
 		double minCost = 0;
@@ -74,8 +75,7 @@ public class Neo4jAdapter {
 		}
 
 		ExecutionResult result = engine
-				.execute("START ps=node(*) "
-						+ "MATCH (p)<-[:IS_PART]-(ps)-[:FROM_SUPPLIER]->(s)-[:FROM_NATION]->(n)-[:MEMBER_OF_REGION]->(r) "
+				.execute("MATCH (p)<-[:IS_PART]-(ps:Partsupp)-[:FROM_SUPPLIER]->(s)-[:FROM_NATION]->(n)-[:MEMBER_OF_REGION]->(r) "
 						+ "WHERE p.P_Size = "
 						+ partSize
 						+ " AND p.P_Type =~ '"
@@ -92,8 +92,7 @@ public class Neo4jAdapter {
 
 	public void doQuery3() {
 		ExecutionResult result = engine
-				.execute("START li=node(*) "
-						+ "MATCH (c)<-[:ORDERED_BY_CUSTOMER]-(o)<-[:MEMBER_OF_ORDER]-(li) "
+				.execute("MATCH (c)<-[:ORDERED_BY_CUSTOMER]-(o)<-[:MEMBER_OF_ORDER]-(li:Lineitem) "
 						+ "WHERE c.C_MktSegment = '"
 						+ customerSegment
 						+ "' AND o.O_OrderDate < "
@@ -108,8 +107,7 @@ public class Neo4jAdapter {
 
 	public void doQuery4() {
 		ExecutionResult result = engine
-				.execute("START ps=node(*) "
-						+ "MATCH (c)<-[:ORDERED_BY_CUSTOMER]-(o)<-[:MEMBER_OF_ORDER]-(li)-[:HAS_PARTSUPP]->(ps)-[:FROM_SUPPLIER]->(s)-[:FROM_NATION]->(n)-[:MEMBER_OF_REGION]->(r) "
+				.execute("MATCH (c)<-[:ORDERED_BY_CUSTOMER]-(o)<-[:MEMBER_OF_ORDER]-(li)-[:HAS_PARTSUPP]->(ps:Partsupp)-[:FROM_SUPPLIER]->(s)-[:FROM_NATION]->(n)-[:MEMBER_OF_REGION]->(r) "
 						+ "WHERE r.R_Name = '"
 						+ regionName2
 						+ "' AND o.O_OrderDate >= "
