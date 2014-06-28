@@ -77,20 +77,19 @@ public class DbInserter {
 	}
 
 	private void insertRegions(int numInserts, int firstInsertPK) {
-		Label myLabel = DynamicLabel.label("Region");
 		for (int i = 0; i < numInserts; i++) {
 			Node node = database.createNode();
 			node.setProperty("R_RegionKey", firstInsertPK + i);
 			node.setProperty("R_Name", RandomUtils.randomString(32));
 			node.setProperty("R_Comment", RandomUtils.randomString(80));
 			node.setProperty("skip", RandomUtils.randomString(32));
+			Label myLabel = DynamicLabel.label("Region");
 			node.addLabel(myLabel);
 		}
 	}
 
 	private void insertNations(int numInserts, int firstInsertPK,
 			int firstRegionNode, int numRegions) {
-		Label myLabel = DynamicLabel.label("Nation");
 		for (int i = 0; i < numInserts; i++) {
 			int regionNode = firstRegionNode + r.nextInt(numRegions);
 			Node region = database.getNodeById(regionNode);
@@ -100,12 +99,12 @@ public class DbInserter {
 			node.createRelationshipTo(region, RelTypes.MEMBER_OF_REGION);
 			node.setProperty("N_Comment", RandomUtils.randomString(80));
 			node.setProperty("skip", RandomUtils.randomString(32));
+			Label myLabel = DynamicLabel.label("Nation");
 			node.addLabel(myLabel);
 		}
 	}
 
 	private void insertParts(int numInserts, int firstInsertPK) {
-		Label myLabel = DynamicLabel.label("Part");
 		for (int i = 0; i < numInserts; i++) {
 			Node node = database.createNode();
 			node.setProperty("P_PartKey", firstInsertPK + i);
@@ -118,13 +117,13 @@ public class DbInserter {
 			node.setProperty("P_RetailPrice", RandomUtils.randomDouble(13 / 2, 2));
 			node.setProperty("P_Comment", RandomUtils.randomString(32));
 			node.setProperty("skip", RandomUtils.randomString(32));
+			Label myLabel = DynamicLabel.label("Part");
 			node.addLabel(myLabel);
 		}
 	}
 
 	private void insertSuppliers(int numInserts, int firstInsertPK,
 			int firstNationNode, int numNations) {
-		Label myLabel = DynamicLabel.label("Supplier");
 		for (int i = 0; i < numInserts; i++) {
 			int nationNode = firstNationNode + r.nextInt(numNations);
 			Node nation = database.getNodeById(nationNode);
@@ -137,13 +136,13 @@ public class DbInserter {
 			node.setProperty("S_AcctBal", RandomUtils.randomDouble(6, 2));
 			node.setProperty("S_Comment", RandomUtils.randomString(52));
 			node.setProperty("skip", RandomUtils.randomString(32));
+			Label myLabel = DynamicLabel.label("Supplier");
 			node.addLabel(myLabel);
 		}
 	}
 
 	private void insertCustomers(int numInserts, int firstInsertPK,
 			int firstNationNode, int numNations) {
-		Label myLabel = DynamicLabel.label("Customer");
 		for (int i = 0; i < numInserts; i++) {
 			int nationNode = firstNationNode + r.nextInt(numNations);
 			Node nation = database.getNodeById(nationNode);
@@ -157,13 +156,13 @@ public class DbInserter {
 			node.setProperty("C_MktSegment", RandomUtils.randomString(32));
 			node.setProperty("C_Comment", RandomUtils.randomString(60));
 			node.setProperty("skip", RandomUtils.randomString(32));
+			Label myLabel = DynamicLabel.label("Customer");
 			node.addLabel(myLabel);
 		}
 	}
 
 	private void insertPartsupps(int numInserts, int firstPartNode,
 			int numParts, int firstSupplierNode, int numSuppliers) {
-		Label myLabel = DynamicLabel.label("Partsupp");
 		for (int i = 0; i < numInserts; i++) {
 			ArrayList<Integer> pk;
 			int partNode, supplierNode;
@@ -184,13 +183,13 @@ public class DbInserter {
 			node.setProperty("PS_SupplyCost", RandomUtils.randomDouble(6, 2));
 			node.setProperty("PS_Comment", RandomUtils.randomString(100));
 			node.setProperty("skip", RandomUtils.randomString(32));
+			Label myLabel = DynamicLabel.label("Partsupp");
 			node.addLabel(myLabel);
 		}
 	}
 
 	private void insertOrders(int numInserts, int firstInsertPK,
 			int firstCustomerNode, int numCustomers) {
-		Label myLabel = DynamicLabel.label("Order");
 		for (int i = 0; i < numInserts; i++) {
 			int customerNode = firstCustomerNode + r.nextInt(numCustomers);
 			Node customer = database.getNodeById(customerNode);
@@ -206,13 +205,13 @@ public class DbInserter {
 			node.setProperty("O_ShipPriority", RandomUtils.randomInt());
 			node.setProperty("O_Comment", RandomUtils.randomString(40));
 			node.setProperty("skip", RandomUtils.randomString(32));
+			Label myLabel = DynamicLabel.label("Order");
 			node.addLabel(myLabel);
 		}
 	}
 
 	private void insertLineitems(int numInserts, int firstOrderNode,
 			int numOrders, int firstPartsuppNode, int numPartsupps) {
-		Label myLabel = DynamicLabel.label("Lineitem");
 		for (int i = 0; i < numInserts; i++) {
 			ArrayList<Integer> pk;
 			int orderNode, linenumber;
@@ -244,6 +243,7 @@ public class DbInserter {
 			node.setProperty("L_ShipMode", RandomUtils.randomString(32));
 			node.setProperty("L_Comment", RandomUtils.randomString(32));
 			node.setProperty("skip", RandomUtils.randomString(32));
+			Label myLabel = DynamicLabel.label("Lineitem");
 			node.addLabel(myLabel);
 		}
 	}
