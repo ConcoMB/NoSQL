@@ -6,9 +6,12 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Random;
+
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.cypher.javacompat.ExecutionResult;
+import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.Transaction;
@@ -124,7 +127,7 @@ public class DBAdapterNeo4j {
 
     public void doQuery1() {
         ExecutionResult result = engine.execute(
-                "START li=node(*) " +
+                "MATCH (li:Lineitem) " +
                 "WHERE li.L_ShipDate <= " + lineitemShipdate1 + " " +    
                 "RETURN li.L_ReturnFlag, li.L_LineStatus, SUM(li.L_Quantity) AS Sum_Qty, SUM(li.L_ExtendedPrice) AS Sum_Base_Price, " +
                 "SUM(li.L_ExtendedPrice*(1 - li.L_Discount)) AS Sum_Disc_Price, SUM(li.L_ExtendedPrice*(1 - li.L_Discount)*(1 + li.L_Tax)) AS Sum_Charge, " +
@@ -136,8 +139,7 @@ public class DBAdapterNeo4j {
     public void doQuery2() {
     	long time = System.currentTimeMillis();
         ExecutionResult subResult = engine.execute(
-                "START r=node(*) " +
-                "MATCH (ps)-[:FROM_SUPPLIER]->(s)-[:FROM_NATION]->(n)-[:MEMBER_OF_REGION]->(r) " +
+                "MATCH (ps)-[:FROM_SUPPLIER]->(s)-[:FROM_NATION]->(n)-[:MEMBER_OF_REGION]->(r:Region) " +
                 "WHERE r.R_Name = '" + regionName1 + "' " +
                 "RETURN MIN(ps.PS_SupplyCost) AS Min_Cost");
         System.out.println(System.currentTimeMillis() - time);
@@ -148,8 +150,7 @@ public class DBAdapterNeo4j {
         }
         
         ExecutionResult result = engine.execute(
-                "START ps=node(*) " +
-                "MATCH (p)<-[:IS_PART]-(ps)-[:FROM_SUPPLIER]->(s)-[:FROM_NATION]->(n)-[:MEMBER_OF_REGION]->(r) " +
+                "MATCH (p)<-[:IS_PART]-(ps:Partsupp)-[:FROM_SUPPLIER]->(s)-[:FROM_NATION]->(n)-[:MEMBER_OF_REGION]->(r) " +
                 "WHERE p.P_Size = " + partSize + " AND p.P_Type =~ '" + partType + "' AND r.R_Name = '" + regionName1 + "' AND ps.PS_SupplyCost = " + min_cost + " " +
                 "RETURN s.S_AcctBal, s.S_Name, n.N_Name, p.P_PartKey, p.P_Mfgr, s.S_Address, s.S_Phone, s.S_Comment " +
                 "ORDER BY s.S_AcctBal DESC, n.N_Name, s.S_Name, p.P_PartKey");
@@ -158,8 +159,7 @@ public class DBAdapterNeo4j {
 
     public void doQuery3() {
         ExecutionResult result = engine.execute(
-                "START li=node(*) " +
-                "MATCH (c)<-[:ORDERED_BY_CUSTOMER]-(o)<-[:MEMBER_OF_ORDER]-(li) " +
+                "MATCH (c)<-[:ORDERED_BY_CUSTOMER]-(o)<-[:MEMBER_OF_ORDER]-(li:Lineitem) " +
                 "WHERE c.C_MktSegment = '" + customerMktsegment + "' AND o.O_OrderDate < " + orderOrderdate1 + " AND li.L_ShipDate > " + orderOrderdate2 + " " +    
                 "RETURN o.O_OrderKey, SUM(li.L_ExtendedPrice*(1 - li.L_Discount)) AS Revenue, o.O_OrderDate, o.O_ShipPriority " +
                 "ORDER BY Revenue DESC, o.O_OrderDate");
@@ -168,8 +168,7 @@ public class DBAdapterNeo4j {
 
     public void doQuery4() {
         ExecutionResult result = engine.execute(
-                "START ps=node(*) " +
-                "MATCH (c)<-[:ORDERED_BY_CUSTOMER]-(o)<-[:MEMBER_OF_ORDER]-(li)-[:HAS_PARTSUPP]->(ps)-[:FROM_SUPPLIER]->(s)-[:FROM_NATION]->(n)-[:MEMBER_OF_REGION]->(r) " +
+                "MATCH (c)<-[:ORDERED_BY_CUSTOMER]-(o)<-[:MEMBER_OF_ORDER]-(li)-[:HAS_PARTSUPP]->(ps:Partsupp)-[:FROM_SUPPLIER]->(s)-[:FROM_NATION]->(n)-[:MEMBER_OF_REGION]->(r) " +
                 "WHERE r.R_Name = '" + regionName2 + "' AND o.O_OrderDate >= " + orderOrderdate2 + " AND o.O_OrderDate < " + orderOrderdate3 + " " +
                 "RETURN n.N_Name, SUM(li.L_ExtendedPrice*(1 - li.L_Discount)) AS Revenue " +
                 "ORDER BY Revenue DESC");
@@ -184,6 +183,8 @@ public class DBAdapterNeo4j {
             node.setProperty("R_Name", getRandomString(64/2));
             node.setProperty("R_Comment", getRandomString(160/2));
             node.setProperty("skip", getRandomString(64/2));
+            Label myLabel = DynamicLabel.label("Region");
+            node.addLabel(myLabel);
         }
     }
     
@@ -198,6 +199,8 @@ public class DBAdapterNeo4j {
             node.createRelationshipTo(region, RelTypes.MEMBER_OF_REGION);
             node.setProperty("N_Comment", getRandomString(160/2));
             node.setProperty("skip", getRandomString(64/2));
+            Label myLabel = DynamicLabel.label("Nation");
+            node.addLabel(myLabel);
         }
     }
     
@@ -214,6 +217,8 @@ public class DBAdapterNeo4j {
             node.setProperty("P_RetailPrice", getRandomNumber(13/2, 2));
             node.setProperty("P_Comment", getRandomString(64/2));
             node.setProperty("skip", getRandomString(64/2));
+            Label myLabel = DynamicLabel.label("Part");
+            node.addLabel(myLabel);
         }   
     }
     
@@ -231,6 +236,8 @@ public class DBAdapterNeo4j {
             node.setProperty("S_AcctBal", getRandomNumber(13/2, 2));
             node.setProperty("S_Comment", getRandomString(105/2));
             node.setProperty("skip", getRandomString(64/2)); 
+            Label myLabel = DynamicLabel.label("Supplier");
+            node.addLabel(myLabel);
         }
     }
     
@@ -249,6 +256,8 @@ public class DBAdapterNeo4j {
             node.setProperty("C_MktSegment", getRandomString(64/2));
             node.setProperty("C_Comment", getRandomString(120/2));
             node.setProperty("skip", getRandomString(64/2));
+            Label myLabel = DynamicLabel.label("Customer");
+            node.addLabel(myLabel);
         }
     }
     
@@ -275,6 +284,8 @@ public class DBAdapterNeo4j {
             node.setProperty("PS_SupplyCost", getRandomNumber(13/2, 2));
             node.setProperty("PS_Comment", getRandomString(200/2));
             node.setProperty("skip", getRandomString(64/2));
+            Label myLabel = DynamicLabel.label("Partsupp");
+            node.addLabel(myLabel);
         }
     }
     
@@ -294,6 +305,8 @@ public class DBAdapterNeo4j {
             node.setProperty("O_ShipPriority", getRandomInteger());
             node.setProperty("O_Comment", getRandomString(80/2));
             node.setProperty("skip", getRandomString(64/2)); 
+            Label myLabel = DynamicLabel.label("Order");
+            node.addLabel(myLabel);
         }
     }
     
@@ -332,6 +345,8 @@ public class DBAdapterNeo4j {
             node.setProperty("L_ShipMode", getRandomString(64/2));
             node.setProperty("L_Comment", getRandomString(64/2));
             node.setProperty("skip", getRandomString(64/2));
+            Label myLabel = DynamicLabel.label("Lineitem");
+            node.addLabel(myLabel);
         }
     }
     

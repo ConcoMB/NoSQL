@@ -24,10 +24,10 @@ public class Main {
 //        adapter.insertOperation();
         adapter.obtainQueryParameters();
 
-//        adapter.doQuery1();
+        adapter.doQuery1();
         adapter.doQuery2();
-//        adapter.doQuery3();
-//        adapter.doQuery4();
+        adapter.doQuery3();
+        adapter.doQuery4();
         
         adapter.disconnect();
     }
