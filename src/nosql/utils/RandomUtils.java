@@ -18,16 +18,16 @@ public class RandomUtils {
 		return t;
 	}
 
-	public static Date randomDate() {
-		return randomObject(new RandomObjectFunction<Date>() {
-			public Date get() {
+	public static Long randomDate() {
+		return randomObject(new RandomObjectFunction<Long>() {
+			public Long get() {
 				long offset = Timestamp.valueOf("2010-01-01 00:00:00")
 						.getTime();
 				long end = Timestamp.valueOf("2013-04-30 00:00:00").getTime();
 				long diff = end - offset + 1;
 				Timestamp rand = new Timestamp(offset
 						+ (long) (r.nextDouble() * diff));
-				return new Date(rand.getTime());
+				return new Date(rand.getTime()).getTime();
 			}
 		});
 	}
